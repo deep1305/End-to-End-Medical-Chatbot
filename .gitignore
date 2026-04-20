@@ -8,9 +8,6 @@ wheels/
 
 # Virtual environments
 .venv
-images/
-notes.txt
-*.zip
 End-to-End-Medical-Chatbot/
 
 
