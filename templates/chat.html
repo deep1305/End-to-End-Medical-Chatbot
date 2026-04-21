@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedConnect | AI Medical Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fas fa-hand-holding-medical"></i>
+                <span>MedConnect</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-item active">
+                    <i class="fas fa-comment-medical"></i>
+                    <span>New Consultation</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-book-medical"></i>
+                    <span>Knowledge Base</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">U</div>
+                    <span>Guest User</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-wrapper">
+            <header class="chat-header">
+                <div class="header-info">
+                    <h1>Medical Assistant</h1>
+                    <span class="status-badge"><span class="dot"></span> Online</span>
+                </div>
+                <div class="header-actions">
+                    <button id="clear-chat" title="Clear Chat"><i class="fas fa-trash-alt"></i></button>
+                    <button title="Settings"><i class="fas fa-cog"></i></button>
+                </div>
+            </header>
+
+            <div id="chat-messages" class="chat-messages">
+                <!-- Welcome Message -->
+                <div class="message assistant">
+                    <div class="message-content">
+                        Hello! I am your AI medical assistant. I can answer questions using our verified medical knowledge base. How can I assist you today?
+                    </div>
+                    <span class="timestamp">Just now</span>
+                </div>
+            </div>
+
+            <footer class="chat-footer">
+                <form id="chat-form" class="input-container">
+                    <input type="text" id="user-input" placeholder="Ask about symptoms, treatments, or medical conditions..." autocomplete="off">
+                    <button type="submit" id="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+                <p class="disclaimer">Note: This is an AI assistant. In case of emergency, contact local medical services immediately.</p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Scripts Area -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            function appendMessage(role, text) {
+                const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const messageHtml = `
+                    <div class="message ${role}">
+                        <div class="message-content">${text}</div>
+                        <span class="timestamp">${timestamp}</span>
+                    </div>
+                `;
+                $('#chat-messages').append(messageHtml);
+                $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
+            }
+
+            $('#chat-form').on('submit', function(e) {
+                e.preventDefault();
+                const userInput = $('#user-input').val().trim();
+                
+                if (userInput === '') return;
+
+                appendMessage('user', userInput);
+                $('#user-input').val('');
+
+                // Add typing indicator
+                const typingHtml = `
+                    <div class="message assistant typing" id="typing-indicator">
+                        <div class="message-content">
+                            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                    </div>
+                `;
+                $('#chat-messages').append(typingHtml);
+
+                $.ajax({
+                    url: '/get',
+                    type: 'POST',
+                    data: { msg: userInput },
+                    success: function(data) {
+                        $('#typing-indicator').remove();
+                        appendMessage('assistant', data.answer);
+                    },
+                    error: function() {
+                        $('#typing-indicator').remove();
+                        appendMessage('assistant', "I'm sorry, I'm having trouble connecting right now. Please try again later.");
+                    }
+                });
+            });
+
+            $('#clear-chat').on('click', function() {
+                $('.message:not(:first)').remove();
+            });
+        });
+    </script>
+</body>
+</html>
