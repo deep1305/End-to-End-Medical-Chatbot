@@ -58,7 +58,7 @@ End to End Medical Chatbot/
 ### 1) Clone the repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/deep1305/End-to-End-Medical-Chatbot.git
 cd "End to End Medical Chatbot"
 ```
 
