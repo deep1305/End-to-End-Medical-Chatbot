@@ -12,3 +12,4 @@ End-to-End-Medical-Chatbot/
 
 .env
 medical_accessKeys.csv
+*.pem
